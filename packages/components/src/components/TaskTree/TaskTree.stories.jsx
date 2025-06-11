@@ -125,3 +125,111 @@ export const Default = {
     );
   }
 };
+
+export const WithStepActions = {
+  render: args => {
+    const [, updateArgs] = useArgs();
+
+    return (
+      <TaskTree
+        {...args}
+        taskRuns={[
+          {
+            metadata: {
+              labels: { 'tekton.dev/pipelineTask': 'Task with StepActions' },
+              uid: 'task-stepactions'
+            },
+            status: {
+              conditions: [
+                { reason: 'Running', status: 'Unknown', type: 'Succeeded' }
+              ],
+              steps: [
+                // Steps appear in different order in status.steps
+                {
+                  name: 'git-clone',
+                  terminated: { exitCode: 0, reason: 'Completed' }
+                },
+                { name: 'build', running: {} },
+                {
+                  name: 'test',
+                  terminated: { exitCode: 0, reason: 'Completed' }
+                },
+                {
+                  name: 'lint',
+                  terminated: { exitCode: 0, reason: 'Completed' }
+                }
+              ],
+              taskSpec: {
+                steps: [
+                  { name: 'build' },
+                  { name: 'test' },
+                  { name: 'lint' },
+                  { name: 'git-clone' }
+                ]
+              }
+            }
+          }
+        ]}
+        onRetryChange={selectedRetry =>
+          updateArgs({ selectedRetry: `${selectedRetry}` })
+        }
+        onSelect={({ selectedStepId: stepId, selectedTaskId: taskId }) => {
+          updateArgs({ selectedStepId: stepId, selectedTaskId: taskId });
+        }}
+      />
+    );
+  }
+};
+
+export const WithInjectedSteps = {
+  render: args => {
+    const [, updateArgs] = useArgs();
+
+    return (
+      <TaskTree
+        {...args}
+        taskRuns={[
+          {
+            metadata: {
+              labels: { 'tekton.dev/pipelineTask': 'Task with Injected Steps' },
+              uid: 'task-injected'
+            },
+            status: {
+              conditions: [
+                { reason: 'Completed', status: 'True', type: 'Succeeded' }
+              ],
+              steps: [
+                // Injected steps not in taskSpec
+                {
+                  name: 'injected-sidecar',
+                  terminated: { exitCode: 0, reason: 'Completed' }
+                },
+                {
+                  name: 'build',
+                  terminated: { exitCode: 0, reason: 'Completed' }
+                },
+                {
+                  name: 'test',
+                  terminated: { exitCode: 0, reason: 'Completed' }
+                },
+                {
+                  name: 'injected-cleanup',
+                  terminated: { exitCode: 0, reason: 'Completed' }
+                }
+              ],
+              taskSpec: {
+                steps: [{ name: 'build' }, { name: 'test' }]
+              }
+            }
+          }
+        ]}
+        onRetryChange={selectedRetry =>
+          updateArgs({ selectedRetry: `${selectedRetry}` })
+        }
+        onSelect={({ selectedStepId: stepId, selectedTaskId: taskId }) => {
+          updateArgs({ selectedStepId: stepId, selectedTaskId: taskId });
+        }}
+      />
+    );
+  }
+};

@@ -42,6 +42,56 @@ describe('Task', () => {
     expect(queryByText(/a step/i)).toBeTruthy();
   });
 
+  it('renders steps in order defined by stepsOrder', () => {
+    const steps = [
+      { name: 'step-3', terminated: { reason: 'Completed' } },
+      { name: 'step-1', terminated: { reason: 'Completed' } },
+      { name: 'step-2', terminated: { reason: 'Completed' } }
+    ];
+    const stepsOrder = ['step-1', 'step-2', 'step-3'];
+    const { container } = render(
+      <Task {...props} expanded steps={steps} stepsOrder={stepsOrder} />
+    );
+
+    const stepElements = container.querySelectorAll('.tkn--step-list li');
+    expect(stepElements[0].textContent).toContain('step-1');
+    expect(stepElements[1].textContent).toContain('step-2');
+    expect(stepElements[2].textContent).toContain('step-3');
+  });
+
+  it('renders injected steps at the end when using stepsOrder', () => {
+    const steps = [
+      { name: 'injected-step', terminated: { reason: 'Completed' } },
+      { name: 'step-1', terminated: { reason: 'Completed' } },
+      { name: 'step-2', terminated: { reason: 'Completed' } }
+    ];
+    const stepsOrder = ['step-1', 'step-2'];
+    const { container } = render(
+      <Task {...props} expanded steps={steps} stepsOrder={stepsOrder} />
+    );
+
+    const stepElements = container.querySelectorAll('.tkn--step-list li');
+    expect(stepElements[0].textContent).toContain('step-1');
+    expect(stepElements[1].textContent).toContain('step-2');
+    expect(stepElements[2].textContent).toContain('injected-step');
+  });
+
+  it('handles missing steps in stepsOrder gracefully', () => {
+    const steps = [
+      { name: 'step-1', terminated: { reason: 'Completed' } },
+      { name: 'step-2', terminated: { reason: 'Completed' } }
+    ];
+    const stepsOrder = ['step-1', 'step-3', 'step-2']; // step-3 doesn't exist
+    const { container } = render(
+      <Task {...props} expanded steps={steps} stepsOrder={stepsOrder} />
+    );
+
+    const stepElements = container.querySelectorAll('.tkn--step-list li');
+    expect(stepElements.length).toBe(2);
+    expect(stepElements[0].textContent).toContain('step-1');
+    expect(stepElements[1].textContent).toContain('step-2');
+  });
+
   it('automatically selects first step in expanded Task with no error', () => {
     const firstStepName = 'a step';
     const steps = [

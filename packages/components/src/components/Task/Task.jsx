@@ -26,6 +26,26 @@ import {
 import StatusIcon from '../StatusIcon';
 import Step from '../Step';
 
+function reorderSteps(steps, stepsOrder) {
+  const stepsMap = new Map(steps.map(step => [step.name, step]));
+
+  const orderedSteps = [];
+  if (stepsOrder && stepsOrder.length > 0) {
+    stepsOrder.forEach(stepName => {
+      if (stepsMap.has(stepName)) {
+        orderedSteps.push(stepsMap.get(stepName));
+        stepsMap.delete(stepName);
+      }
+    });
+  }
+
+  stepsMap.forEach(step => {
+    orderedSteps.push(step);
+  });
+
+  return orderedSteps;
+}
+
 class Task extends Component {
   state = { hasWarning: false, selectedStepId: null };
 
@@ -42,9 +62,11 @@ class Task extends Component {
   }
 
   getStepData({ propagateWarning = false } = {}) {
-    const { reason, selectedStepId, steps } = this.props;
+    const { reason, selectedStepId, steps, stepsOrder } = this.props;
+
     let hasWarning = false;
-    const stepData = updateUnexecutedSteps(steps).map(step => {
+
+    const stepData = updateUnexecutedSteps(reorderSteps(steps, stepsOrder)).map(step => {
       const { name, terminationReason } = step;
       const {
         exitCode,
@@ -274,7 +296,8 @@ class Task extends Component {
 }
 
 Task.defaultProps = {
-  steps: []
+  steps: [],
+  stepsOrder: []
 };
 
 export default injectIntl(Task);

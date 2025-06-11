@@ -82,6 +82,66 @@ export const Expanded = args => {
   );
 };
 
+export const ExpandedWithStepOrder = args => {
+  const [, updateArgs] = useArgs();
+
+  return (
+    <Task
+      {...args}
+      displayName="Task with StepAction"
+      expanded
+      onSelect={({ selectedStepId: stepId }) =>
+        updateArgs({ selectedStepId: stepId })
+      }
+      reason="Running"
+      steps={[
+        // Steps from status.steps - note the order might be different
+        {
+          name: 'stepaction-lint',
+          terminated: { exitCode: 0, reason: 'Completed' }
+        },
+        { name: 'build', running: {} },
+        { name: 'test', terminated: { exitCode: 0, reason: 'Completed' } },
+        { name: 'deploy', running: {} }
+      ]}
+      stepsOrder={['build', 'test', 'stepaction-lint', 'deploy']}
+      succeeded="Unknown"
+    />
+  );
+};
+
+export const ExpandedWithInjectedSteps = args => {
+  const [, updateArgs] = useArgs();
+
+  return (
+    <Task
+      {...args}
+      displayName="Task with injected steps"
+      expanded
+      onSelect={({ selectedStepId: stepId }) =>
+        updateArgs({ selectedStepId: stepId })
+      }
+      reason="Completed"
+      steps={[
+        // Injected step not in stepsOrder
+        {
+          name: 'injected-sidecar',
+          terminated: { exitCode: 0, reason: 'Completed' }
+        },
+        { name: 'build', terminated: { exitCode: 0, reason: 'Completed' } },
+        { name: 'test', terminated: { exitCode: 0, reason: 'Completed' } },
+        // Another injected step
+        {
+          name: 'injected-cleanup',
+          terminated: { exitCode: 0, reason: 'Completed' }
+        }
+      ]}
+      stepsOrder={['build', 'test']}
+      succeeded="True"
+    />
+  );
+};
+
 export const Retries = args => {
   const [, updateArgs] = useArgs();
 

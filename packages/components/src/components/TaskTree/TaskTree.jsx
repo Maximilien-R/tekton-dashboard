@@ -85,6 +85,9 @@ const TaskTree = ({
               (selectedTaskRunName ? name === selectedTaskRunName : true)) ||
             // otherwise there's no error and no explicit selection, expand the first task by default
             (!erroredTask && !selectedTaskId && index === 0));
+        const stepsOrder = (taskRunToUse.status?.taskSpec?.steps || [])
+          .map(step => step?.name)
+          .filter(stepName => typeof stepName === 'string');
 
         if (!hasExpandedTask && expanded) {
           hasExpandedTask = true;
@@ -114,6 +117,7 @@ const TaskTree = ({
             selectedRetry={expanded && selectedRetry}
             selectedStepId={selectedStepId}
             steps={steps}
+            stepsOrder={stepsOrder}
             succeeded={status}
             taskRun={taskRun}
           />
